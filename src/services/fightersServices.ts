@@ -1,10 +1,14 @@
 import axios from "axios";
 
 async function getUserRepositories(user: String) {
-  const { data } = await axios.get(
-    `https://api.github.com/users/${user}/repos`
-  );
-  return data;
+  try {
+    const { data } = await axios.get(
+      `https://api.github.com/users/${user}/repos`
+    );
+    return data;
+  } catch (err) {
+    return undefined;
+  }
 }
 
 function countStars(repos: any) {
