@@ -1,23 +1,10 @@
-import axios from "axios";
-
-async function getUserRepositories(user: String) {
-  try {
-    const { data } = await axios.get(
-      `https://api.github.com/users/${user}/repos`
-    );
-    return data;
-  } catch (err) {
-    return undefined;
-  }
-}
-
-function countStars(repos: any) {
-  let stars = 0;
-  repos.forEach((repo: any) => {
-    stars += repo.stargazers_count;
-  });
-  return stars;
-}
+import {
+  getUserRepositories,
+  countStars,
+  checkWinner,
+  isFirstTime,
+} from "../utils/fightersUtils.js";
+import * as fightersRepository from "../repositories/fightersRepository.js";
 
 async function battle(firstUser: String, secondUser: String) {
   const firstUserRepos = await getUserRepositories(firstUser);
@@ -33,23 +20,37 @@ async function battle(firstUser: String, secondUser: String) {
   const firstUserStars = countStars(firstUserRepos);
   const secondUserStars = countStars(secondUserRepos);
 
-  let result = {
-    winner: null,
-    loser: null,
-    draw: true,
-  };
+  if (await isFirstTime(firstUser)) {
+    await fightersRepository.createUser(firstUser);
+  }
+  if (await isFirstTime(secondUser)) {
+    await fightersRepository.createUser(secondUser);
+  }
 
-  if (firstUserStars > secondUserStars) {
-    result.winner = firstUser;
-    result.loser = secondUser;
-    result.draw = false;
-  } else if (firstUserStars < secondUserStars) {
-    result.winner = secondUser;
-    result.loser = firstUser;
-    result.draw = false;
+  const result = await checkWinner(
+    firstUser,
+    secondUser,
+    firstUserStars,
+    secondUserStars
+  );
+
+  if (result.draw === false) {
+    await fightersRepository.updateUser(result.winner, "wins", 1);
+    await fightersRepository.updateUser(result.loser, "losses", 1);
+  } else {
+    await fightersRepository.updateUser(firstUser, "draws", 1);
+    await fightersRepository.updateUser(secondUser, "draws", 1);
   }
 
   return result;
 }
 
-export { battle };
+async function getRanking() {
+  const { rows } = await fightersRepository.getRanking();
+  const ranking = {
+    fighters: rows,
+  };
+  return ranking;
+}
+
+export { battle, getRanking };

@@ -7,4 +7,9 @@ async function battle(req: Request, res: Response) {
   res.send(result);
 }
 
-export { battle };
+async function getRanking(req: Request, res: Response) {
+  const ranking = await figthersServices.getRanking();
+  res.send(ranking);
+}
+
+export { battle, getRanking };
