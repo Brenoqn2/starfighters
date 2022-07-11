@@ -7,8 +7,12 @@ import {
 import * as fightersRepository from "../repositories/fightersRepository.js";
 
 async function battle(firstUser: String, secondUser: String) {
-  const firstUserRepos = await getUserRepositories(firstUser);
-  const secondUserRepos = await getUserRepositories(secondUser);
+  const firstUserRepos: Array<Object> | undefined = await getUserRepositories(
+    firstUser
+  );
+  const secondUserRepos: Array<Object> | undefined = await getUserRepositories(
+    secondUser
+  );
 
   if (firstUserRepos === undefined || secondUserRepos === undefined) {
     throw {

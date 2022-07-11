@@ -1,6 +1,12 @@
 import axios from "axios";
 import * as fightersRepository from "../repositories/fightersRepository.js";
 
+interface BattleResult {
+  winner: String | null;
+  loser: String | null;
+  draw: boolean;
+}
+
 async function getUserRepositories(user: String) {
   try {
     const { data } = await axios.get(
@@ -12,9 +18,9 @@ async function getUserRepositories(user: String) {
   }
 }
 
-function countStars(repos: any) {
+function countStars(repos: Array<Object>) {
   let stars = 0;
-  repos.forEach((repo: any) => {
+  repos.forEach((repo: { stargazers_count: number }) => {
     stars += repo.stargazers_count;
   });
   return stars;
@@ -31,7 +37,7 @@ async function checkWinner(
   firstUserStars: Number,
   secondUserStars: Number
 ) {
-  let result = {
+  let result: BattleResult = {
     winner: null,
     loser: null,
     draw: true,
